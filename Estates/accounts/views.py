@@ -6,8 +6,8 @@ from rest_framework import permissions, status
 from django.contrib.auth import get_user_model
 User = get_user_model()
 from rest_framework.permissions import IsAuthenticated
-# from listings.models import Property
-# from listings.serializers import PropertySerializer
+from rest_framework_simplejwt.tokens import RefreshToken
+
 
 class RegisterView(APIView):                       # WORKS
     permission_classes = [permissions.AllowAny]
@@ -21,20 +21,29 @@ class RegisterView(APIView):                       # WORKS
             email = email.lower()
             password = data['password']
             re_password = data['re_password']
-      
 
-          
+
+
             if password == re_password:
                 if len(password) >= 8:
                     if not User.objects.filter(email=email).exists():
 
-                            User.objects.create_user(name=name, email=email, password=password)
+                            user = User.objects.create_user(name=name, email=email, password=password)
+                            refresh = RefreshToken.for_user(user)
+                            access_token = str(refresh.access_token)
+
 
                             return Response(
-                                {'success': 'User created successfully'},
+                                {
+                                'success': 'User created successfully',
+                                'name': user.name,
+                                'refresh': str(refresh),
+                                'access': access_token,
+
+                                 },
                                 status=status.HTTP_201_CREATED
                             )
-            
+
                     else:
                         return Response(
                             {'error': 'User with this email already exists'},
@@ -58,7 +67,7 @@ class RegisterView(APIView):                       # WORKS
 
 class RetrieveUserView(APIView):                       # WORKS
     permission_classes = (IsAuthenticated)
-  
+
     def get(self, request, format=None):
         try:
             user = request.user
@@ -77,19 +86,18 @@ class RetrieveUserView(APIView):                       # WORKS
 
 class LogoutAPIView(generics.GenericAPIView):           # WORKS
      serializer_class = LogoutSerializer
-     permission_classes = (permissions.IsAuthenticated,) 
+     permission_classes = (permissions.IsAuthenticated,)
      def post(self, request):
         try:
-            serializer = self.serializer_class(data=request.data) 
-            serializer.is_valid(raise_exception=True) 
-            serializer.save() 
+            serializer = self.serializer_class(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
             return Response(
-                   {'success': 'Logged out successfully'}, 
-                   status=status.HTTP_204_NO_CONTENT
-         )
+                {'success': 'Logged out successfully'},
+                status=status.HTTP_200_OK
+            )
         except:
               return Response(
-                {'error': 'Logout failed'},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 

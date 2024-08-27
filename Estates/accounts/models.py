@@ -23,8 +23,8 @@ class UserAccountManager(BaseUserManager):
 
 
         return user
-    
-    
+
+
     def create_superuser(self, email, name, password=None):
         user = self.create_user(email, name, password)
 
@@ -50,4 +50,4 @@ class UserAccount(AbstractBaseUser, PermissionsMixin):
         return self.email
 
 
- 
+

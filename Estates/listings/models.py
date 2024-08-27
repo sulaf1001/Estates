@@ -7,8 +7,8 @@ from django.core.validators import MinValueValidator
 
 # Create your models here.
 class Property (models.Model):
-    
-    user=models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)           
+
+    user=models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     address =models.CharField(max_length=100)
     price = models.IntegerField(validators=[MinValueValidator(0)])
     num_beds = models.IntegerField(validators=[MinValueValidator(0)])
@@ -17,15 +17,19 @@ class Property (models.Model):
     contact_num =models.CharField(max_length=10,default="0000000000")
     description =models.TextField(max_length=2000, blank=True)
     favourites = models.ManyToManyField( UserAccount , related_name='favourites' , default= False , blank=True )
-    image = models.ImageField(upload_to='images', blank=True)
-    image1 = models.ImageField(upload_to='images', blank=True)
-    image2 = models.ImageField(upload_to='images', blank=True)
+    image = models.ImageField(upload_to='images/', max_length=300)
+    image1 = models.ImageField(upload_to='images/', max_length=300)
+    image2 = models.ImageField(upload_to='images/', max_length=300)
+    listing_type = models.CharField(max_length=100)
+    approved= models.BooleanField(default= False)
 
-    LISTING_TYPES = (
-        ('rent', 'Rent'),
-        ('buy', 'Buy'),
-    )
-    listing_type = models.CharField(max_length=4, choices=LISTING_TYPES, default='rent')
+    # uncomment to define the listing type as a list of options rather than charField .
+
+    # LISTING_TYPES = (
+    #     ('rent', 'Rent'),
+    #     ('buy', 'Buy'),
+    # )
+    # listing_type = models.CharField(max_length=4, choices=LISTING_TYPES, default='rent')
 
 
     def __str__(self):
